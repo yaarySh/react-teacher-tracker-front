@@ -1,0 +1,32 @@
+{
+  "products": [
+    {
+      "id": 1,
+      "name": "Iphone 15",
+      "price": 4000,
+      "image": "https://upload.wikimedia.org/wikipedia/en/e/ee/Front_%26_Back_Face_of_iPhone_16_Pro_Max.png"
+    },
+    {
+      "id": 2,
+      "name": "Macbook",
+      "price": 5000,
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/MacBook-Pro-13inch.jpg/440px-MacBook-Pro-13inch.jpg"
+    },
+    {
+      "id": 3,
+      "name": "Apple Vision",
+      "price": 20000,
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Apple_Vision_Pro_on_display.jpg/440px-Apple_Vision_Pro_on_display.jpg"
+    }
+  ],
+  "cart": [
+    {
+      "product_id": 1,
+      "quantity": 5
+    },
+    {
+      "product_id": 2,
+      "quantity": 3
+    }
+  ]
+}
