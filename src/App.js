@@ -1,6 +1,6 @@
 import "./App.css";
 import {useState} from "react";
-import Container from "./components/Container";
+import TeacherSchedule from "./components/TeacherSchedule";
 import Footer from "./components/Footer";
 import Jumbotron from "./components/Jumbotron";
 import Navbar from "./components/Navbar";
@@ -18,7 +18,7 @@ function App() {
         <Jumbotron />
         <Navbar />
         <Routes>
-          <Route path="/" element={<Container />} />
+          <Route path="/" element={<TeacherSchedule />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
         </Routes>
