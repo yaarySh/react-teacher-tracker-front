@@ -1,30 +1,27 @@
 import React, {useState} from "react";
-import axios from "axios";
 import {useNavigate} from "react-router-dom";
+import {register} from "../scripts/api"; // Import register API function
 
 const Register = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleRegister = () => {
-    axios
-      .post("http://127.0.0.1:8000/teachers/register/", {username, password, confirmPassword})
-      .then(() => {
-        navigate("/login"); // Redirect to login page
-      })
-      .catch((error) => {
-        console.error("Error registering", error);
-        setError(true);
-      });
+  const handleRegister = async () => {
+    try {
+      await register(username, password, confirmPassword);
+      navigate("/login"); // Redirect to login page
+    } catch (error) {
+      setError(error.response?.data?.error || "Registration failed. Please try again.");
+    }
   };
 
   return (
     <div className="container">
       <h2 className="text-center">Register</h2>
-      {error && <div className="error-message">Registration failed. Please try again.</div>}
+      {error && <div className="error-message">{error}</div>}
       <div className="register-form">
         <div className="form-group">
           <label htmlFor="username">Username</label>

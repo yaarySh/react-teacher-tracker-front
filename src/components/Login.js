@@ -1,23 +1,22 @@
 import React, {useState} from "react";
-import axios from "axios";
-import {useNavigate} from "react-router-dom"; // Optional for custom styles
+import {useNavigate} from "react-router-dom";
+import {login} from "../scripts/api"; // Import the API function
+
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState(false);
-  const navigate = useNavigate(); // Initialize navigate
+  const navigate = useNavigate();
 
-  const handleLogin = () => {
-    axios
-      .post("http://127.0.0.1:8000/teachers/login/", {username, password})
-      .then((response) => {
-        localStorage.setItem("token", response.data.access);
-        navigate("/"); // Navigate to the dashboard or other route
-      })
-      .catch((error) => {
-        console.error("Error logging in", error);
-        setErrorMessage(true);
-      });
+  const handleLogin = async () => {
+    try {
+      const data = await login(username, password);
+      localStorage.setItem("token", data.access);
+      navigate("/");
+    } catch (error) {
+      console.error("Error logging in", error);
+      setErrorMessage(true);
+    }
   };
 
   return (
@@ -52,10 +51,7 @@ const Login = () => {
         <button className="submit-btn" onClick={handleLogin}>
           Login
         </button>
-        <button
-          className="register-btn"
-          onClick={() => navigate("/register")} // Navigate to register page
-        >
+        <button className="register-btn" onClick={() => navigate("/register")}>
           Register
         </button>
       </div>

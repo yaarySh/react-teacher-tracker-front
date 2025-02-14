@@ -19,7 +19,7 @@ function Navbar() {
               <Link to="/">Home</Link>
             </li>
             <li>
-              <a href="http://www.google.com">monthly hours</a>
+              <Link to="/monthly-hours">monthly hours</Link>
             </li>
           </ul>
           <ul class="nav navbar-nav navbar-right">
