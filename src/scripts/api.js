@@ -136,7 +136,7 @@ export const fetchClassesByDate = async (date) => {
 // Fetch teacher's hours worked by month and year
 export const fetchMonthlyHours = async (year, month) => {
   try {
-    const response = await api.get(`teachers/monthly_hours/${year}/${month}/`);
+    const response = await api.get(`teachers/get_monthly_hours/${year}/${month}/`);
     return response.data;
   } catch (error) {
     throw error;
