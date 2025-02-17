@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const HOST = "https://react-teacher-tracker.onrender.com/";
-
+// const HOST = "http://127.0.0.1:8000/";
 // Function to get the token from localStorage
 const getToken = () => localStorage.getItem("token");
 
@@ -57,15 +57,6 @@ export const fetchSchedule = async () => {
     throw error;
   }
 };
-
-// export const fetchSchedule = async (month, year) => {
-//   try {
-//     const response = await api.get(`classes/schedule/?month=${month}&year=${year}`);
-//     return response.data;
-//   } catch (error) {
-//     throw error;
-//   }
-// };
 
 // Delete a class
 export const deleteClass = async (classId) => {
@@ -134,11 +125,13 @@ export const fetchClassesByDate = async (date) => {
 };
 
 // Fetch teacher's hours worked by month and year
-export const fetchMonthlyHours = async (year, month) => {
+export const fetchMonthlyClasses = async () => {
   try {
-    const response = await api.get(`teachers/get_monthly_hours/${year}/${month}/`);
+    const response = await api.get(`classes/monthly-hours`);
+
     return response.data;
   } catch (error) {
+    console.error("Error fetching monthly hours:", error);
     throw error;
   }
 };

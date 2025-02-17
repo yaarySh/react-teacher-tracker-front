@@ -1,67 +1,89 @@
 import React, {useState, useEffect} from "react";
-import {fetchMonthlyHours} from "../scripts/api"; // Import the fetchMonthlyHours function
+import {fetchMonthlyClasses} from "../scripts/api";
 
-// Function to get the last 12 months (from the current date)
+// Function to get the last 12 months in a structured format
 const getLast12Months = () => {
   const months = [];
   const currentDate = new Date();
 
-  // Loop through the past 12 months
   for (let i = 0; i < 12; i++) {
     const date = new Date(currentDate);
     date.setMonth(currentDate.getMonth() - i);
-    months.push(date);
+
+    months.push({
+      year: date.getFullYear(),
+      month: date.getMonth() + 1, // Month as a number (1-12)
+      monthName: date.toLocaleString("default", {month: "long"}), // Full month name
+    });
   }
 
-  return months.reverse(); // To display in chronological order from last to current month
+  return months.reverse(); // Chronological order
 };
 
 const MonthlyHours = () => {
-  const [monthlyData, setMonthlyData] = useState([]); // State to store monthly data
+  const [monthlyData, setMonthlyData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Function to fetch data for each month in the last 12 months
     const fetchData = async () => {
-      const months = getLast12Months();
-      const data = [];
+      try {
+        const response = await fetchMonthlyClasses();
+        const months = getLast12Months();
 
-      // Loop through the months and fetch the data for each month
-      for (const month of months) {
-        const year = month.getFullYear();
-        const monthNumber = month.getMonth() + 1;
+        // Map API response to match last 12 months
+        const formattedData = months.map(({year, month, monthName}) => {
+          const found = response.find((entry) => entry.date__year === year && entry.date__month === month);
 
-        try {
-          // Fetch the monthly hours data using the fetchMonthlyHours function
-          const response = await fetchMonthlyHours(year, monthNumber);
-          data.push({
-            month: response.month, // Month name (e.g., "January 2024")
-            total_hours: response.total_hours, // Total hours for the month
-          });
-        } catch (error) {
-          console.error(`Error fetching data for ${month.toLocaleString("default", {month: "long", year: "numeric"})}:`, error);
-        }
+          return {
+            month: `${monthName} ${year}`,
+            total_hours: found ? found.total_hours : 0,
+          };
+        });
+
+        setMonthlyData(formattedData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
       }
-
-      setMonthlyData(data); // Set the fetched data to the state
     };
 
-    fetchData(); // Call the function to fetch data when the component mounts
+    fetchData();
   }, []);
 
   return (
-    <div>
-      <h2>Hours Worked in the Past Year</h2>
-      <ul>
-        {monthlyData.length > 0 ? (
-          monthlyData.map((data, index) => (
-            <li key={index}>
-              <strong>{data.month}:</strong> {data.total_hours} hours
-            </li>
-          ))
-        ) : (
-          <p>Loading...</p>
-        )}
-      </ul>
+    <div className="container mt-4">
+      <div className="card shadow-sm">
+        <div className="card-body">
+          <h3 className="card-title text-center mb-4">Hours Worked (Past Year)</h3>
+          {loading ? (
+            <div className="text-center">
+              <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          ) : (
+            <div className="table-responsive">
+              <table className="table table-bordered table-striped">
+                <thead className="table-dark">
+                  <tr>
+                    <th>Month</th>
+                    <th>Total Hours</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {monthlyData.map((data, index) => (
+                    <tr key={index}>
+                      <td>{data.month}</td>
+                      <td>{data.total_hours} hours</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
