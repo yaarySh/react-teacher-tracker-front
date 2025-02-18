@@ -1,24 +1,19 @@
-import React, {useState, useContext} from "react";
+import React, {useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {login} from "../scripts/api";
-import {TeacherContext} from "../TeacherContext"; // Import the context
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState(false);
   const navigate = useNavigate();
-  const {setTeacher} = useContext(TeacherContext); // Get the setter function from context
 
   const handleLogin = async () => {
     try {
       const data = await login(username, password);
       localStorage.setItem("token", data.access);
 
-      // Store the teacher's username in context
-      setTeacher({username});
-
-      navigate("/");
+      navigate("/"); // Redirect to the home page after successful login
     } catch (error) {
       console.error("Error logging in", error);
       setErrorMessage(true);
