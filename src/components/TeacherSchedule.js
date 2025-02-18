@@ -1,29 +1,17 @@
-import React, {useEffect, useState, useRef} from "react";
-import {fetchSchedule, deleteClass, toggleAttendance, createClass, fetchClassesByDate} from "../scripts/api";
-import CalendarComponent from "./calendarSelection"; // Import the CalendarComponent
+import React, {useState, useRef, useContext} from "react";
+import {deleteClass, toggleAttendance, createClass, fetchClassesByDate} from "../scripts/api";
+import CalendarComponent from "./calendarSelection";
+import {TeacherContext} from "../TeacherContext";
 
 const TeacherSchedule = () => {
-  const [teacher, setTeacher] = useState(null);
-  const [schedule, setSchedule] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(null); // New state for selected date
+  const {teacher, setTeacher, schedule, setSchedule} = useContext(TeacherContext); // Use context data
+  const [selectedDate, setSelectedDate] = useState(null);
 
-  // References for dropdown selections
   const gradeRefs = useRef([]);
   const numberRefs = useRef([]);
 
-  useEffect(() => {
-    fetchSchedule()
-      .then((data) => {
-        setTeacher(data.teacher || null);
-        setSchedule(data.data || []);
-      })
-      .catch((error) => alert("Error fetching schedule"));
-  }, []);
-
-  // Function to filter the schedule by date
   const handleDateChange = (date) => {
-    setSelectedDate(date); // Set the selected date
-    // Fetch the classes for the selected date
+    setSelectedDate(date);
     fetchScheduleForDate(date);
   };
 
@@ -46,18 +34,12 @@ const TeacherSchedule = () => {
   const handleToggleAttendance = async (class_id, attendedStatus) => {
     const success = await toggleAttendance(class_id, attendedStatus);
     if (success) {
-      // Update the schedule
       setSchedule((prev) => prev.map((item) => (item.id === class_id ? {...item, attended: attendedStatus} : item)));
 
-      // Fetch and update the teacher's monthly hours
-      fetchSchedule()
-        .then((data) => {
-          setTeacher((prev) => ({
-            ...prev,
-            monthly_hours: data.teacher?.monthly_hours || 0,
-          }));
-        })
-        .catch((error) => alert("Error fetching teacher's updated data"));
+      setTeacher((prev) => ({
+        ...prev,
+        monthly_hours: prev?.monthly_hours + (attendedStatus ? 1 : -1),
+      }));
     }
   };
 
@@ -74,74 +56,11 @@ const TeacherSchedule = () => {
     if (newClass) {
       setSchedule((prev) => [...prev, newClass]);
 
-      // Fetch and update the teacher's monthly hours
-      fetchSchedule()
-        .then((data) => {
-          setTeacher((prev) => ({
-            ...prev,
-            monthly_hours: data.teacher?.monthly_hours || 0,
-          }));
-        })
-        .catch((error) => alert("Error fetching teacher's updated data"));
+      setTeacher((prev) => ({
+        ...prev,
+        monthly_hours: prev?.monthly_hours + 1,
+      }));
     }
-  };
-
-  const renderRows = () => {
-    return Array.from({length: 6}, (_, i) => {
-      const period = i + 1;
-      const classForPeriod = schedule.find((item) => item.period === period && item.date === selectedDate); // Filter by date
-
-      if (classForPeriod) {
-        return (
-          <tr key={period}>
-            <td>{period}</td>
-            <td>{`${classForPeriod.classroom.grade_letter}${classForPeriod.classroom.class_number}`}</td>
-            <td>{classForPeriod.classroom.building_name}</td>
-            <td>{classForPeriod.classroom.floor_number}</td>
-            <td>{classForPeriod.date}</td>
-            <td>
-              <button
-                className={`btn btn-${classForPeriod.attended ? "success" : "danger"} btn-sm`}
-                onClick={() => handleToggleAttendance(classForPeriod.id, !classForPeriod.attended)}
-              >
-                {classForPeriod.attended ? "Yes" : "No"}
-              </button>
-              <button className="btn btn-danger btn-sm" onClick={() => handleDeleteClass(classForPeriod.id)}>
-                Delete
-              </button>
-            </td>
-          </tr>
-        );
-      } else {
-        return (
-          <tr key={period}>
-            <td>{period}</td>
-            <td>
-              <select ref={(el) => (gradeRefs.current[i] = el)} className="form-select">
-                {["א", "ב", "ג", "ד", "ה", "ו"].map((letter) => (
-                  <option key={letter} value={letter}>
-                    {letter}
-                  </option>
-                ))}
-              </select>
-              <select ref={(el) => (numberRefs.current[i] = el)} className="form-select">
-                {[1, 2, 3, 4].map((num) => (
-                  <option key={num} value={num}>
-                    {num}
-                  </option>
-                ))}
-              </select>
-              <button className="btn btn-primary btn-sm mt-2" onClick={() => handleCreateClass(period, i)}>
-                Apply
-              </button>
-            </td>
-            <td colSpan="4" className="text-center">
-              No class scheduled
-            </td>
-          </tr>
-        );
-      }
-    });
   };
 
   return (
@@ -153,12 +72,10 @@ const TeacherSchedule = () => {
 
       <h2 className="text-center">Teacher's Schedule</h2>
 
-      {/* Calendar Component */}
       <div className="text-center">
         <CalendarComponent onDateChange={handleDateChange} />
       </div>
 
-      {/* Display the schedule for the selected date */}
       {selectedDate && <h4 className="text-center">Schedule for {selectedDate}</h4>}
 
       <table className="table table-bordered">
@@ -172,7 +89,63 @@ const TeacherSchedule = () => {
             <th>Attended</th>
           </tr>
         </thead>
-        <tbody>{renderRows()}</tbody>
+        <tbody>
+          {Array.from({length: 6}, (_, i) => {
+            const period = i + 1;
+            const classForPeriod = schedule.find((item) => item.period === period && item.date === selectedDate);
+
+            if (classForPeriod) {
+              return (
+                <tr key={period}>
+                  <td>{period}</td>
+                  <td>{`${classForPeriod.classroom.grade_letter}${classForPeriod.classroom.class_number}`}</td>
+                  <td>{classForPeriod.classroom.building_name}</td>
+                  <td>{classForPeriod.classroom.floor_number}</td>
+                  <td>{classForPeriod.date}</td>
+                  <td>
+                    <button
+                      className={`btn btn-${classForPeriod.attended ? "success" : "danger"} btn-sm`}
+                      onClick={() => handleToggleAttendance(classForPeriod.id, !classForPeriod.attended)}
+                    >
+                      {classForPeriod.attended ? "Yes" : "No"}
+                    </button>
+                    <button className="btn btn-danger btn-sm" onClick={() => handleDeleteClass(classForPeriod.id)}>
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              );
+            } else {
+              return (
+                <tr key={period}>
+                  <td>{period}</td>
+                  <td>
+                    <select ref={(el) => (gradeRefs.current[i] = el)} className="form-select">
+                      {["א", "ב", "ג", "ד", "ה", "ו"].map((letter) => (
+                        <option key={letter} value={letter}>
+                          {letter}
+                        </option>
+                      ))}
+                    </select>
+                    <select ref={(el) => (numberRefs.current[i] = el)} className="form-select">
+                      {[1, 2, 3, 4].map((num) => (
+                        <option key={num} value={num}>
+                          {num}
+                        </option>
+                      ))}
+                    </select>
+                    <button className="btn btn-primary btn-sm mt-2" onClick={() => handleCreateClass(period, i)}>
+                      Apply
+                    </button>
+                  </td>
+                  <td colSpan="4" className="text-center">
+                    No class scheduled
+                  </td>
+                </tr>
+              );
+            }
+          })}
+        </tbody>
       </table>
 
       <div className="text-center mt-4">

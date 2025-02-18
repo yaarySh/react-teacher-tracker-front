@@ -1,31 +1,33 @@
 import React, {useContext} from "react";
-// import CartCotext from "../CartContext";
 import {Link} from "react-router-dom";
 
 function Navbar() {
   return (
-    <nav class="navbar navbar-inverse">
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
+    <nav className="navbar navbar-inverse">
+      <div className="container-fluid">
+        <div className="navbar-header">
+          <button type="button" className="navbar-toggle" data-toggle="collapse" data-target="#navbarNav">
+            <span className="icon-bar"></span>
+            <span className="icon-bar"></span>
+            <span className="icon-bar"></span>
           </button>
+          <Link className="navbar-brand" to="/">
+            Teacher Dashboard
+          </Link>
         </div>
-        <div class="collapse navbar-collapse" id="myNavbar">
-          <ul class="nav navbar-nav">
-            <li class="active">
+        <div className="collapse navbar-collapse" id="navbarNav">
+          <ul className="nav navbar-nav">
+            <li className="active">
               <Link to="/">Home</Link>
             </li>
             <li>
-              <Link to="/monthly-hours">monthly hours</Link>
+              <Link to="/monthly-hours">Monthly Hours</Link>
             </li>
           </ul>
-          <ul class="nav navbar-nav navbar-right">
+          <ul className="nav navbar-nav navbar-right">
             <li>
               <Link to="/login">
-                <span class="glyphicon glyphicon-user"></span> Your Account
+                <span className="glyphicon glyphicon-user"></span> Your Account
               </Link>
             </li>
           </ul>

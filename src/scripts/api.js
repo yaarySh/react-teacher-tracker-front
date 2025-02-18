@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const HOST = "https://react-teacher-tracker.onrender.com/";
-// const HOST = "http://127.0.0.1:8000/";
+// const HOST = "https://react-teacher-tracker.onrender.com/";
+const HOST = "http://127.0.0.1:8000/";
 // Function to get the token from localStorage
 const getToken = () => localStorage.getItem("token");
 
